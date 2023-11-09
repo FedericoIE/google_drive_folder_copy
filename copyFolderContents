@@ -1,0 +1,41 @@
+function copyFolderContents() {
+  // Replace 'YOUR_FOLDER_URL' with the actual Google Drive folder URL
+  var sourceFolderUrl = 'YOUR_FOLDER_URL';
+
+  // Replace 'DESTINATION_FOLDER_NAME' with the desired destination folder name in My Drive
+  var destinationFolderName = 'DESTINATION_FOLDER_NAME';
+
+  // Get the source folder
+  var sourceFolder = DriveApp.getFolderById(getFolderIdFromUrl(sourceFolderUrl));
+
+  // Create the destination folder in My Drive
+  var destinationFolder = DriveApp.getRootFolder().createFolder(destinationFolderName);
+
+  // Copy the contents of the source folder to the destination folder
+  copyFolder(sourceFolder, destinationFolder);
+}
+
+// Function to copy a folder and its contents
+function copyFolder(source, destination) {
+  var folders = source.getFolders();
+  var files = source.getFiles();
+
+  while (folders.hasNext()) {
+    var subFolder = folders.next();
+    var newSubFolder = destination.createFolder(subFolder.getName());
+    console.log('Copying folder: ' + subFolder.getName());
+    copyFolder(subFolder, newSubFolder);
+  }
+
+  while (files.hasNext()) {
+    var file = files.next();
+    console.log('Copying file: ' + file.getName());
+    file.makeCopy(file.getName(), destination);
+  }
+}
+
+// Function to extract folder ID from folder URL
+function getFolderIdFromUrl(url) {
+  var match = /folders\/(.+?)(\/|$)/.exec(url);
+  return match && match[1] ? match[1] : null;
+}
